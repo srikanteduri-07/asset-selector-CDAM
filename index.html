@@ -3,74 +3,62 @@
     <title>Dynamic Media Open API Asset Selector</title>
 </head>
 <body>
-<h1 style="text-align: center; color: red">Dynamic Media Asset Selector with imsClientId</h1>
 <div style="width: 100%; height: 100%">
-    <div id='asset-selector' style="width: 50%; float: left; ">
-        Left Div
-    </div>
-    <div id='asset-selector-select' style="margin-left: 50%; padding: 15px; height: 100%; background: #EEE;">
-        Login, Select asset(s) in left pane and click "Select"...
-    </div>
+    <h1 style="text-align: center; color: red"> Dynamic Media Open API Asset Selector with IMS Token  </h1>
+    <div id='asset-selector'></div>
 </div>
 <script src="https://experience.adobe.com/solutions/CQ-assets-selectors/static-assets/resources/assets-selectors.js"></script>
 <script>
-    function openAssetSelector() {
-        let imsInstance = null;
-        const ASS_DIV_SEL = "asset-selector-select";
+    function registerAssetSelector(){
+        const apiToken = queryParameters().imsToken;
 
-        let imsProps = {
-            imsClientId: "d7527920e90c43cca70e1b7dacce9a3d",
-            imsScope: "openid",
-            redirectUrl: window.location.href, // redirect url to be used for ims flow, if empty it will use the registered redirect url for the client id.
-            modalMode: true, // false to open in a full page reload flow
-            adobeImsOptions: {
-                modalSettings: {
-                    allowOrigin: window.location.origin,
-                },
-                useLocalStorage: true,
-            },
-            onImsServiceInitialized: (service) => {},
-            onAccessTokenReceived: (token) => {},
-            onAccessTokenExpired: () => {},
-            onErrorReceived: (type, msg) => {},
+        if(!apiToken) {
+            alert("IMS Token is required");
+            return;
         }
 
-        function load() {
-            const registeredTokenService = PureJSSelectors.registerAssetsSelectorsAuthService(imsProps);
-            imsInstance = registeredTokenService;
+        alert(apiToken);
+
+        function handleSelection(selection) {
+            console.log("Selected asset: ", selection);
         }
 
-        function handleSelection(selectedAssets) {
-            let assDiv = document.getElementById(ASS_DIV_SEL);
-            let firstAsset = selectedAssets[0], assetContent = "";
+        function renderAssetSelectorInline() {
+            console.log("initializing Asset Selector");
 
-            for(const key in firstAsset){
-                if(typeof firstAsset[key] !== "string"){
-                    continue;
-                }
-
-                assetContent = assetContent + key + " = " + firstAsset[key]  + "<br>";
+            const props = {
+                "repositoryId": "author-p33507-e118522.adobeaemcloud.com",
+                "apiKey": "asset_search_service",
+                "imsOrg": "777B575E55828EBB7F000101@AdobeOrg",
+                "imsToken": apiToken,
+                handleSelection,
+                hideTreeNav: true
             }
 
-            assDiv.innerHTML = assetContent;
+            const container = document.getElementById('asset-selector');
+
+            PureJSSelectors.renderAssetSelector(container, props);
         }
 
-        load();
-
-        const assetSelectorProps = {
-            aemTierType: ["author"],
-            imsOrg: '777B575E55828EBB7F000101@AdobeOrg',
-            imsToken: "eyJhbGciOiJSUzI1NiIsIng1dSI6Imltc19uYTEta2V5LWF0LTEuY2VyIiwia2lkIjoiaW1zX25hMS1rZXktYXQtMSIsIml0dCI6ImF0In0.eyJpZCI6IjE3NTc0MTA2NjMzMjJfZGVhOTI5ZDgtM2Y3MS00Y2VjLWE4MDMtNjFhMDczZWQxZGNlX3VlMSIsInR5cGUiOiJhY2Nlc3NfdG9rZW4iLCJjbGllbnRfaWQiOiJkZXYtY29uc29sZS1wcm9kIiwidXNlcl9pZCI6IjBFQTAxRTc2NjdCNjA0NzIwQTQ5NUZGNUA4ODgyMWYxNzY3ODNiY2Q2NDk1ZWQ2LmUiLCJzdGF0ZSI6Iklsb2s3bDcyZE1JZUxGUXkwZmpzZ0ZaeiIsImFzIjoiaW1zLW5hMSIsImFhX2lkIjoiMTFGMzFFOTI2N0I2MDQ3MjBBNDk1RkYyQHZlcml6b24uY29tIiwiY3RwIjowLCJmZyI6IlpZV1o1WU9QRkxNNUFEV0tGQ1FWSUhBQTVRIiwic2lkIjoiMTc0NzY1NDkyNDkxMV9iMTdiNDM4Yy04ZTM3LTQyNDctYjA3ZS00NGRiZmUwZWZlYmNfdWUxIiwicnRpZCI6IjE3NTc0MTA2NjMzMjNfMjdjYWRlNjEtZjUzZi00MDdiLWIzYTgtNmVlOWUyMTA0ODRiX3VlMSIsIm1vaSI6IjRlZmYwNCIsInBiYSI6Ik1lZFNlY05vRVYsTG93U2VjIiwicnRlYSI6IjE3NTg2MjAyNjMzMjMiLCJleHBpcmVzX2luIjoiODY0MDAwMDAiLCJjcmVhdGVkX2F0IjoiMTc1NzQxMDY2MzMyMiIsInNjb3BlIjoiQWRvYmVJRCxvcGVuaWQscmVhZF9vcmdhbml6YXRpb25zLGFkZGl0aW9uYWxfaW5mby5wcm9qZWN0ZWRQcm9kdWN0Q29udGV4dCxhZGRpdGlvbmFsX2luZm8ucm9sZXMifQ.PeR6r_jADRJR3uJoUjqrH2OzDlJPX730y0ZKWqQLhKabtx6C7un1lF994gxUQtB-LTlkJoLwKdF2jnhAf0HhxZL5pYi3NC_Po0wNqEaGjOw4aHmzf5AsIho2qa5BvSA1dZ5MBlpDcjyPCnIImjdpBrgFFpk9WF_io_UP31MOCdnkLTJobHmi840lRqwf1JYGvNjkfgcnk-Rjc2kj_tyxp0Q4xzZ9iyljflPetBGnF5gt8nowKab0KiOjy1cxl_GhF9x89I1Edqkfob0NAwTqlDNdsqA7_IKXdKVJ-7oriYncG7yTkmbr7Yy9BhO_5g5GYs5iB3wlCb4D2QNqZDgjYQ",
-            repositoryId: "author-p33507-e118522.adobeaemcloud.com",
-            hideTreeNav: false, handleSelection
-        };
-
-        const container = document.getElementById('asset-selector');
-
-        PureJSSelectors.renderAssetSelectorWithAuthFlow (container, assetSelectorProps);
+        window.addEventListener("load", (event) => {
+            renderAssetSelectorInline();
+        });
     }
 
-    openAssetSelector();
+    function queryParameters() {
+        let result = {}, param,
+            params = document.location.search.split(/\?|\&/);
+
+        params.forEach( function(it) {
+            param = it.split("=");
+            result[param[0]] = param[1];
+        });
+
+        return result;
+    }
+
+    registerAssetSelector();
+
 </script>
 </body>
 </html>
