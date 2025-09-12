@@ -21,6 +21,20 @@
 
         function handleSelection(selection) {
             console.log("Selected asset: ", selection);
+            console.log("Raw selection object:", selection);
+
+            const assets = Array.isArray(selection) ? selection : [selection];
+
+            assets.forEach((asset, index) => {
+            console.log("----------- Asset " + (index + 1) + " -----------");
+            console.log("Name:", asset.name);
+            console.log("ID:", asset.id);
+            console.log("Path:", asset.path);
+            console.log("Type:", asset.type);
+            console.log("MIME Type:", asset.mimeType);
+            console.log("Thumbnail URL:", asset.thumbnailUrl);
+            console.log("All Data:", asset);
+            });
         }
 
         function renderAssetSelectorInline() {
